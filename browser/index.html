@@ -30,193 +30,44 @@
                         <nav class="panel is-info">
                             <p class="panel-heading has-text-centered">Builds</p>
                             <div class="panel-block">
-                                <div v-if="loading">
-                                    Loading...
-                                </div>
-                                <div v-else-if="builds.length > 0">
-                                    <div v-for="build in builds">
+                                <div>
                                         <div class="content">
-                                            Version: <span style="font-weight: bold">{{ build.id }}</span>
-                                            (<a v-bind:href="getObjectUrl(build, 'meta.json')">meta.json</a>,
-                                            <a v-bind:href="getObjectUrl(build, 'commitmeta.json')">commitmeta.json</a>)
-                                            <span v-if="build.meta" v-bind:title="build.meta['coreos-assembler.build-timestamp']">
-                                                — {{ timeSince(build.meta['coreos-assembler.build-timestamp']) }}
-                                            </span>
-                                        </div>
-                                        <div v-if="build.meta" style="margin-left: 1em">
+                                            Version: Emerging OS all-hands CY21Q1 </div>
+                                        <div>
                                             <div class="content">
-                                                OSTree:
+                                                OCP 4.7 released
                                                 <ul>
-                                                    <li>Commit: {{ build.meta['ostree-commit'] }}
-                                                        (<a v-bind:href="getOSTreeUrl(build)">download</a>)
-                                                    </li>
-                                                    <li v-if="build.meta['fedora-coreos.parent-commit']">
-                                                        Parent Commit: {{ build.meta['fedora-coreos.parent-commit'] }} ({{ build.meta['fedora-coreos.parent-version'] }})
-                                                    </li>
-                                                    <li v-if="build.commitmeta">Packages: (<a class="js" v-on:click="build.commitmeta.showImportantPkgsOnly = !build.commitmeta.showImportantPkgsOnly">{{ build.commitmeta.showImportantPkgsOnly ? "expand" : "collapse" }}</a>)
-                                                        <ul v-if="build.commitmeta.showImportantPkgsOnly">
-                                                            <li v-for="pkg in build.commitmeta.importantPkgs">
-                                                                {{ getPkgNevraFull(pkg) }}
-                                                            </li>
-                                                        </ul>
-                                                        <ul v-else>
-                                                            <li v-for="pkg in build.commitmeta['rpmostree.rpmdb.pkglist']">
-                                                                {{ getPkgNevraFull(pkg) }}
-                                                            </li>
-                                                        </ul>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <div v-if="build.meta.pkgdiff" class="content">
-                                                    <div v-if="build.meta.pkgdiff.added.length > 0" class="content">
-                                                        <p>Added:</p>
-                                                        <ul>
-                                                            <li v-for="pkg in build.meta.pkgdiff.added">
-                                                                {{ getPkgNevra(pkg[2]["NewPackage"]) }}
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                    <div v-if="build.meta.pkgdiff.removed.length > 0" class="content">
-                                                        <p>Removed:</p>
-                                                        <ul>
-                                                            <li v-for="pkg in build.meta.pkgdiff.removed">
-                                                                {{ getPkgNevra(pkg[2]["PreviousPackage"]) }}
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                    <div v-if="build.meta.pkgdiff.upgraded.length > 0" class="content">
-                                                        <p>Upgraded:</p>
-                                                        <ul>
-                                                            <li v-for="pkg in build.meta.pkgdiff.upgraded">
-                                                                {{ pkg[2]["PreviousPackage"][0] }} {{ getPkgEvra(pkg[2]["PreviousPackage"]) }} → {{ getPkgEvra(pkg[2]["NewPackage"]) }}
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                    <div v-if="build.meta.pkgdiff.downgraded.length > 0" class="content">
-                                                        <p>Downgraded:</p>
-                                                        <ul>
-                                                            <li v-for="pkg in build.meta.pkgdiff.downgraded">
-                                                                {{ pkg[2]["PreviousPackage"][0] }} {{ getPkgEvra(pkg[2]["PreviousPackage"]) }} → {{ getPkgEvra(pkg[2]["NewPackage"]) }}
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                            </div>
-                                            <div v-if="build.meta['advisories-diff']" class="content">
-                                                SecAdvisories:
-                                                <ul>
-                                                    <li v-for="adv in build.meta['advisories-diff']">
-                                                        <span v-html="createAdvisoryUrl(adv[0])"></span> <span v-if="adv[2] > 0">({{ advisorySeverityType[adv[2]] }} severity)</span>
-                                                        <ul>
-                                                            <li>
-                                                                Packages:
-                                                                <ul>
-                                                                    <li v-for="pkg in adv[3]">
-                                                                        {{ pkg }}
-                                                                    </li>
-                                                                </ul>
-                                                            </li>
-                                                            <li v-if="'cve_references' in adv[4] && adv[4]['cve_references'].length > 0">
-                                                                CVEs:
-                                                                <ul>
-                                                                    <li v-for="cve in adv[4]['cve_references']">
-                                                                        <span v-html="createCveUrl(cve)"></span>
-                                                                    </li>
-                                                                </ul>
-                                                            </li>
-                                                        </ul>
-                                                    </li>
-                                                </ul>
-                                            </div>
+                                                    <li> Bootupd</li>
+						    <li> RHCOS pipeline refactor</li>
+						    <li> Build and Test RHCOS based on RHEL 8.3 </li>
+						    <li> Complex root devices LUKS/RAID </li>
+						    <li> IBM Cloud v2 early enabelment </li>
+						</ul>
+					    </div>
                                             <div class="content">
-                                                Images:
+						Fedora CoreOS
                                                 <ul>
-                                                    <li v-if="'aliyun' in build.meta.images">
-                                                        Aliyun (Alibaba Cloud): <span v-html="getImageUrl(build, 'aliyun')"></span>
-                                                    </li>
-                                                    <li v-if="'aws' in build.meta.images">
-                                                        AWS: <span v-html="getImageUrl(build, 'aws')"></span>
-                                                    </li>
-                                                    <li v-if="'azure' in build.meta.images">
-                                                        Azure: <span v-html="getImageUrl(build, 'azure')"></span>
-                                                    </li>
-                                                    <li v-if="'metal' in build.meta.images">
-                                                        Bare Metal: <span v-html="getImageUrl(build, 'metal')"></span>
-                                                    </li>
-                                                    <li v-if="'metal4k' in build.meta.images">
-                                                        Bare Metal (4k Native): <span v-html="getImageUrl(build, 'metal4k')"></span>
-                                                    </li>
-                                                    <li v-if="'digitalocean' in build.meta.images">
-                                                        DigitalOcean: <span v-html="getImageUrl(build, 'digitalocean')"></span>
-                                                    </li>
-                                                    <li v-if="'exoscale' in build.meta.images">
-                                                        Exoscale: <span v-html="getImageUrl(build, 'exoscale')"></span>
-                                                    </li>
-                                                    <li v-if="'gcp' in build.meta.images">
-                                                        GCP: <span v-html="getImageUrl(build, 'gcp')"></span>
-                                                    </li>
-                                                    <li v-if="'ibmcloud' in build.meta.images">
-                                                        IBM Cloud: <span v-html="getImageUrl(build, 'ibmcloud')"></span>
-                                                    </li>
-                                                    <li v-if="'iso' in build.meta.images">
-                                                        Installer ISO: <span v-html="getImageUrl(build, 'iso')"></span>
-                                                    </li>
-                                                    <li v-if="'kernel' in build.meta.images">
-                                                        Installer Kernel: <span v-html="getImageUrl(build, 'kernel')"></span>
-                                                    </li>
-                                                    <li v-if="'initramfs' in build.meta.images">
-                                                        Installer Initramfs: <span v-html="getImageUrl(build, 'initramfs')"></span>
-                                                    </li>
-                                                    <li v-if="'live-iso' in build.meta.images">
-                                                        Live ISO: <span v-html="getImageUrl(build, 'live-iso')"></span>
-                                                    </li>
-                                                    <li v-if="'live-kernel' in build.meta.images">
-                                                        Live Kernel: <span v-html="getImageUrl(build, 'live-kernel')"></span>
-                                                    </li>
-                                                    <li v-if="'live-initramfs' in build.meta.images">
-                                                        Live Initramfs: <span v-html="getImageUrl(build, 'live-initramfs')"></span>
-                                                    </li>
-                                                    <li v-if="'live-rootfs' in build.meta.images">
-                                                        Live Rootfs: <span v-html="getImageUrl(build, 'live-rootfs')"></span>
-                                                    </li>
-                                                    <li v-if="'openstack' in build.meta.images">
-                                                        OpenStack: <span v-html="getImageUrl(build, 'openstack')"></span>
-                                                    </li>
-                                                    <li v-if="'qemu' in build.meta.images">
-                                                        QEMU: <span v-html="getImageUrl(build, 'qemu')"></span>
-                                                    </li>
-                                                    <li v-if="'vmware' in build.meta.images">
-                                                        VMware: <span v-html="getImageUrl(build, 'vmware')"></span>
-                                                    </li>
-                                                    <li v-if="'vultr' in build.meta.images">
-                                                        Vultr: <span v-html="getImageUrl(build, 'vultr')"></span>
-                                                    </li>
+                                                    <li>Prep for F34</li>
+						    <li> /boot partition mounted read-only</li>
+						    <li> configure boot disk RAID 1 via ignition</li>
+						    <li> Release Process automation</li>
+						    <li> Coming in Q2 : cgroupsv2 and kargs support in ignition</li>
+						</ul>
+					    </div>
+                                            <div class="content">
+                                                Virtual F2F:
+                                                <ul>
+							<li>Let's talk about burnout</li>
+							<li>Coordination with the multi-arch and osbuilder team</li>
+							<li>Fedora CoreOS release automation</li>
+							<li>OS Metrics and telemetry in OCP</li>
+							<li>Document all the things</li>
                                                 </ul>
                                             </div>
-                                            <div v-if="'amis' in build.meta" class="content">
-                                                AMIs:
-                                                <ul>
-                                                    <li v-for="ami in build.meta.amis">
-                                                        {{ ami["name"] }}: {{ ami["hvm"] }}
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <hr>
                                         </div>
                                         <div v-else style="margin-left: 1em">
                                             Loading...
                                         </div>
-                                    </div>
-                                    <div v-if="unshown_builds.length > 0">
-                                    <p>
-                                        Hiding <span style="font-weight: bold">{{ unshown_builds.length }}</span> older builds
-                                        (load <a class="js" v-if="unshown_builds.length > 5" v-on:click="loadMoreBuilds(5)">5</a>
-                                            <a class="js" v-if="unshown_builds.length > 10" v-on:click="loadMoreBuilds(10)">10</a>
-                                            <a class="js" v-on:click="loadMoreBuilds(-1)">all</a>)
-                                    </p>
-                                    </div>
-                                </div>
-                                <div v-else>
-                                    No builds found!
                                 </div>
                             </div>
                         </nav>
